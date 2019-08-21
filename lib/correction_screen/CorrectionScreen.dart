@@ -263,7 +263,7 @@ class CorrectionScreenState extends State<CorrectionScreen> {
     String date =
         DateFormat("EEE d MMM kk:mm").format(DateTime.now()).toString();
     DBModel dbModel =
-        DBModel("Serie ${length + 1}", totalMark.toString(), date);
+        DBModel("Série ${length + 1}", totalMark.toString(), date);
 
     int result = await dataBaseHelper.insertTest(dbModel);
 

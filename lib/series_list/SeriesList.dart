@@ -21,7 +21,7 @@ class SeriesListState extends State<SeriesList> {
     ScreenUtil.instance = ScreenUtil.getInstance()..init(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text("Series"),
+        title: Text("Séries"),
         /*actions: <Widget>[
           IconButton(
             icon: Icon(Icons.delete_forever),
@@ -75,7 +75,7 @@ class SeriesListState extends State<SeriesList> {
             });
 
             Scaffold.of(context).showSnackBar(
-                SnackBar(content: Text("$deletedItemName deleted")));
+                SnackBar(content: Text("$deletedItemName supprimée")));
           },
           direction: DismissDirection.endToStart,
           child: ListTile(
