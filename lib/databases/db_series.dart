@@ -1,7 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'package:path/path.dart';
-import 'DBModel.dart';
+import '../models/model_serie.dart';
 
 class DataBaseHelper {
   static DataBaseHelper _dataBaseHelper;
@@ -55,14 +55,14 @@ class DataBaseHelper {
   }
 
   //save serie data result into the db
-  Future insertTest(DBModel model) async {
+  Future insertTest(ModelSerie model) async {
     Database db = await database;
     var result = await db.insert(noteTableName, model.toMap());
     return result;
   }
 
   //update data in db
-  Future updateTest(DBModel model) async {
+  Future updateTest(ModelSerie model) async {
     Database db = await database;
     var result = await db.update(
       noteTableName,
@@ -74,13 +74,13 @@ class DataBaseHelper {
   }
 
   //get serie data from db
-  Future<List<DBModel>> getTestsList() async {
+  Future<List<ModelSerie>> getTestsList() async {
     List testsMapList = await getTestsMapList();
     int count = testsMapList.length;
 
-    List<DBModel> testsList = List();
+    List<ModelSerie> testsList = List();
     for (int i = 0; i < count; i++) {
-      testsList.add(DBModel.fromMapObject(testsMapList[i]));
+      testsList.add(ModelSerie.fromMapObject(testsMapList[i]));
     }
 
     return testsList;

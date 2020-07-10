@@ -1,20 +1,20 @@
 import 'dart:convert';
 
-import 'package:code_correction/correction_screen/CorrectionScreen.dart';
-import 'package:code_correction/correction_screen/RadioAnswerModel.dart';
-import 'package:code_correction/databases/DBModel.dart';
+import 'package:code_correction/ui/screens/serie_correction_screen.dart';
+import 'package:code_correction/models/model_question.dart';
+import 'package:code_correction/models/model_serie.dart';
 import 'package:flutter/material.dart';
-import 'package:code_correction/databases/dbSeries.dart';
+import 'package:code_correction/databases/db_series.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class SeriesList extends StatefulWidget {
+class SeriesListScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return SeriesListState();
+    return SeriesListScreenState();
   }
 }
 
-class SeriesListState extends State<SeriesList> {
+class SeriesListScreenState extends State<SeriesListScreen> {
   DataBaseHelper dataBaseHelper = DataBaseHelper();
   String deletedItemName;
   int seriesListLenght = 0;
@@ -43,7 +43,7 @@ class SeriesListState extends State<SeriesList> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => CorrectionScreen(
+              builder: (context) => SerieCorrectionScreen(
                 length: seriesListLenght,
                 onClose: () => setState(() {}),
                 answers: [],
@@ -59,7 +59,7 @@ class SeriesListState extends State<SeriesList> {
   }
 
   Widget listViewData() {
-    return FutureBuilder<List<DBModel>>(
+    return FutureBuilder<List<ModelSerie>>(
         future: getDataListFromDB(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -74,11 +74,11 @@ class SeriesListState extends State<SeriesList> {
             );
           }
 
-          List<DBModel> seriesList = snapshot.data;
+          List<ModelSerie> seriesList = snapshot.data;
           return ListView.builder(
             itemCount: seriesList.length,
             itemBuilder: (context, index) {
-              DBModel serie = seriesList[index];
+              ModelSerie serie = seriesList[index];
               return Dismissible(
                 // Show a red background as the item is swiped away.
                 background: Container(
@@ -131,7 +131,7 @@ class SeriesListState extends State<SeriesList> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => CorrectionScreen(
+                          builder: (context) => SerieCorrectionScreen(
                             id: serie.id,
                             length: int.parse(serie.name.split(' ')[1]),
                             onClose: () => setState(() {}),
@@ -149,9 +149,9 @@ class SeriesListState extends State<SeriesList> {
         });
   }
 
-  Future<List<DBModel>> getDataListFromDB() async {
+  Future<List<ModelSerie>> getDataListFromDB() async {
     await dataBaseHelper.initializeDB();
-    List<DBModel> seriesList = await dataBaseHelper.getTestsList();
+    List<ModelSerie> seriesList = await dataBaseHelper.getTestsList();
     seriesListLenght = seriesList.length;
     print('seriesList length: $seriesListLenght');
 

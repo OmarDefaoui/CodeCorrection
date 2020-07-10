@@ -1,30 +1,30 @@
 import 'dart:convert';
 
-import 'package:code_correction/databases/DBModel.dart';
-import 'package:code_correction/databases/dbSeries.dart';
+import 'package:code_correction/models/model_serie.dart';
+import 'package:code_correction/databases/db_series.dart';
 import 'package:flutter/material.dart';
-import 'RadioAnswerModel.dart';
-import 'RadioItemShape.dart';
+import '../../models/model_question.dart';
+import '../widgets/answers_box.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class CorrectionScreen extends StatefulWidget {
+class SerieCorrectionScreen extends StatefulWidget {
   final int id, length;
   final VoidCallback onClose;
   final List<ModelQuestion> answers;
-  CorrectionScreen({this.id, this.length, this.onClose, this.answers});
+  SerieCorrectionScreen({this.id, this.length, this.onClose, this.answers});
 
   @override
   State<StatefulWidget> createState() {
-    return CorrectionScreenState(length);
+    return SerieCorrectionScreenState(length);
   }
 }
 
-class CorrectionScreenState extends State<CorrectionScreen> {
+class SerieCorrectionScreenState extends State<SerieCorrectionScreen> {
   List<ModelQuestion> modelQuestion = new List<ModelQuestion>();
   int totalMark = 40, length;
 
-  CorrectionScreenState(this.length);
+  SerieCorrectionScreenState(this.length);
 
   @override
   void initState() {
@@ -210,7 +210,7 @@ class CorrectionScreenState extends State<CorrectionScreen> {
               modelQuestion[index].items.add(choice);
           });
         },
-        child: RadioItemShape(
+        child: AnswersBox(
           choice: choice,
           isCorrect: modelQuestion[index].items.contains(choice),
         ),
@@ -234,7 +234,7 @@ class CorrectionScreenState extends State<CorrectionScreen> {
         jsonEncode(modelQuestion.map((item) => item.toJson()).toList());
     String date =
         DateFormat("EEE d MMM kk:mm").format(DateTime.now()).toString();
-    DBModel dbModel = DBModel(
+    ModelSerie dbModel = ModelSerie(
         widget.id, "Serie ${length + 1}", totalMark.toString(), date, answers);
 
     int result;

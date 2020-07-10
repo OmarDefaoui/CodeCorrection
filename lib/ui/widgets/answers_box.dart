@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class RadioItemShape extends StatelessWidget {
+class AnswersBox extends StatelessWidget {
   final int choice;
   final bool isCorrect;
 
-  RadioItemShape({this.choice, this.isCorrect});
+  AnswersBox({this.choice, this.isCorrect});
 
   @override
   Widget build(BuildContext context) {
