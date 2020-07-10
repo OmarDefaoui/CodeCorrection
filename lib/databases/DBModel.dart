@@ -1,8 +1,8 @@
 class DBModel {
   int id;
-  String name, mark, date;
+  String name, mark, date, answers;
 
-  DBModel(this.name, this.mark, this.date);
+  DBModel(this.id, this.name, this.mark, this.date, this.answers);
 
   //convert a model object into a map object
   Map<String, dynamic> toMap() {
@@ -10,6 +10,16 @@ class DBModel {
       'name': name,
       'mark': mark,
       'date': date,
+      'answers': answers,
+    };
+  }
+
+  //used in update data in db
+  Map<String, dynamic> toMapforUpdate() {
+    return {
+      'mark': mark,
+      'date': date,
+      'answers': answers,
     };
   }
 
@@ -19,5 +29,6 @@ class DBModel {
     mark = map["mark"];
     date = map["date"];
     id = map["id"];
+    answers = map["answers"] ?? '';
   }
 }

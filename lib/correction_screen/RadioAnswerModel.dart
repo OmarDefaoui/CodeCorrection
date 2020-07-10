@@ -1,13 +1,18 @@
-class RadioAnswerModel {
+class ModelQuestion {
   int index;
-  List<SubRadioModel> subRadioModel;
+  bool isCorrect;
+  List<int> items;
 
-  RadioAnswerModel(this.index, this.subRadioModel);
-}
+  ModelQuestion({this.index, this.isCorrect, this.items});
 
-class SubRadioModel {
-  bool isSelected;
-  final String btnText;
+  ModelQuestion.fromMap(Map<String, dynamic> json)
+      : index = json['index'],
+        isCorrect = json['isCorrect'],
+        items = json['items'].cast<int>();
 
-  SubRadioModel(this.isSelected, this.btnText);
+  Map<String, dynamic> toJson() => {
+        'index': index,
+        'isCorrect': isCorrect,
+        'items': items,
+      };
 }

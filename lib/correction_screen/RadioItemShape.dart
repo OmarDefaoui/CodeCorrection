@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'RadioAnswerModel.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class RadioItemShape extends StatelessWidget {
-  final SubRadioModel _item;
+  final int choice;
+  final bool isCorrect;
 
-  RadioItemShape(this._item);
+  RadioItemShape({this.choice, this.isCorrect});
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +26,10 @@ class RadioItemShape extends StatelessWidget {
           right: ScreenUtil().setWidth(10),
         ),
         decoration: BoxDecoration(
-          color: _item.isSelected ? Colors.blueAccent : Colors.transparent,
+          color: isCorrect ? Colors.blueAccent : Colors.transparent,
           border: Border.all(
             width: ScreenUtil.getInstance().setWidth(1),
-            color: _item.isSelected ? Colors.blueAccent : Colors.black,
+            color: isCorrect ? Colors.blueAccent : Colors.black,
           ),
           borderRadius: BorderRadius.all(
             Radius.circular(90),
@@ -37,9 +37,9 @@ class RadioItemShape extends StatelessWidget {
         ),
         child: Center(
           child: Text(
-            _item.btnText,
+            '${choice + 1}',
             style: TextStyle(
-              color: _item.isSelected ? Colors.white : Colors.black,
+              color: isCorrect ? Colors.white : Colors.black,
               fontSize: ScreenUtil.getInstance().setSp(50),
             ),
           ),

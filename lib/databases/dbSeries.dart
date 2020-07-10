@@ -13,6 +13,7 @@ class DataBaseHelper {
   String clmName = 'name';
   String clmMark = "mark";
   String clmDate = "date";
+  String clmAnswers = 'answers';
 
   DataBaseHelper.createInstance();
 
@@ -40,7 +41,7 @@ class DataBaseHelper {
       onCreate: _createDB,
       // Set the version. This executes the onCreate function and provides a
       // path to perform database upgrades and downgrades.
-      version: 1,
+      version: 2,
     );
 
     return database;
@@ -49,19 +50,31 @@ class DataBaseHelper {
   void _createDB(Database db, int newVersion) async {
     await db.execute(
       "CREATE TABLE $noteTableName($clmId INTEGER PRIMARY KEY AUTOINCREMENT, "
-      "$clmName TEXT, $clmMark TEXT, $clmDate TEXT)",
+      "$clmName TEXT, $clmMark TEXT, $clmDate TEXT, $clmAnswers TEXT)",
     );
   }
 
-  //insert operation
+  //save serie data result into the db
   Future insertTest(DBModel model) async {
     Database db = await database;
     var result = await db.insert(noteTableName, model.toMap());
     return result;
   }
 
-  //get map list from db and convert it to model list
-  Future getTestsList() async {
+  //update data in db
+  Future updateTest(DBModel model) async {
+    Database db = await database;
+    var result = await db.update(
+      noteTableName,
+      model.toMapforUpdate(),
+      where: "$clmId = ?",
+      whereArgs: [model.id],
+    );
+    return result;
+  }
+
+  //get serie data from db
+  Future<List<DBModel>> getTestsList() async {
     List testsMapList = await getTestsMapList();
     int count = testsMapList.length;
 

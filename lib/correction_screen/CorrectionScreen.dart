@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:code_correction/databases/DBModel.dart';
 import 'package:code_correction/databases/dbSeries.dart';
 import 'package:flutter/material.dart';
@@ -7,9 +9,10 @@ import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CorrectionScreen extends StatefulWidget {
-  int length;
-
-  CorrectionScreen(this.length);
+  final int id, length;
+  final VoidCallback onClose;
+  final List<ModelQuestion> answers;
+  CorrectionScreen({this.id, this.length, this.onClose, this.answers});
 
   @override
   State<StatefulWidget> createState() {
@@ -18,8 +21,7 @@ class CorrectionScreen extends StatefulWidget {
 }
 
 class CorrectionScreenState extends State<CorrectionScreen> {
-  List<RadioAnswerModel> radioData = new List<RadioAnswerModel>();
-  List<RadioAnswerModel> radioDataCorrection = new List<RadioAnswerModel>();
+  List<ModelQuestion> modelQuestion = new List<ModelQuestion>();
   int totalMark = 40, length;
 
   CorrectionScreenState(this.length);
@@ -28,43 +30,48 @@ class CorrectionScreenState extends State<CorrectionScreen> {
   void initState() {
     super.initState();
 
-    for (int i = 0; i < 40; i++) {
-      List<SubRadioModel> subRadioModel = new List<SubRadioModel>();
-      subRadioModel.add(new SubRadioModel(false, '1'));
-      subRadioModel.add(new SubRadioModel(false, '2'));
-      subRadioModel.add(new SubRadioModel(false, '3'));
-      subRadioModel.add(new SubRadioModel(false, '4'));
+    if (widget.answers.isEmpty)
+      for (int i = 0; i < 40; i++) {
+        modelQuestion
+            .add(new ModelQuestion(index: i, isCorrect: true, items: []));
+      }
+    else
+      modelQuestion = widget.answers;
 
-      radioData.add(RadioAnswerModel(i, subRadioModel));
+    calculateTotal();
+  }
+
+  @override
+  void deactivate() {
+    try {
+      widget.onClose();
+    } catch (e) {
+      print('error in widget.onClose()');
     }
 
-    for (int i = 0; i < 40; i++) {
-      List<SubRadioModel> subRadioModel = new List<SubRadioModel>();
-      subRadioModel.add(new SubRadioModel(true, 'T'));
-      subRadioModel.add(new SubRadioModel(false, 'F'));
-
-      radioDataCorrection.add(RadioAnswerModel(i, subRadioModel));
-    }
+    super.deactivate();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Total: $totalMark",
+    return WillPopScope(
+      onWillPop: () => onBackPressed(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            "Total: $totalMark",
+          ),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.save),
+              onPressed: () {
+                saveDataToDB();
+              },
+            )
+          ],
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.save),
-            onPressed: () {
-              saveDataToDB();
-            },
-          )
-        ],
-      ),
-      body: Container(
-        child: ListView.builder(
+        body: ListView.builder(
+          itemCount: 40,
           itemBuilder: (context, index) {
             return Container(
               margin: EdgeInsets.all(10),
@@ -113,50 +120,10 @@ class CorrectionScreenState extends State<CorrectionScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        InkWell(
-                          splashColor: Colors.blueAccent,
-                          onTap: () {
-                            setState(() {
-                              radioData[index].subRadioModel[0].isSelected =
-                                  !radioData[index].subRadioModel[0].isSelected;
-                            });
-                          },
-                          child:
-                              RadioItemShape(radioData[index].subRadioModel[0]),
-                        ),
-                        InkWell(
-                          splashColor: Colors.blueAccent,
-                          onTap: () {
-                            setState(() {
-                              radioData[index].subRadioModel[1].isSelected =
-                                  !radioData[index].subRadioModel[1].isSelected;
-                            });
-                          },
-                          child:
-                              RadioItemShape(radioData[index].subRadioModel[1]),
-                        ),
-                        InkWell(
-                          splashColor: Colors.blueAccent,
-                          onTap: () {
-                            setState(() {
-                              radioData[index].subRadioModel[2].isSelected =
-                                  !radioData[index].subRadioModel[2].isSelected;
-                            });
-                          },
-                          child:
-                              RadioItemShape(radioData[index].subRadioModel[2]),
-                        ),
-                        InkWell(
-                          splashColor: Colors.blueAccent,
-                          onTap: () {
-                            setState(() {
-                              radioData[index].subRadioModel[3].isSelected =
-                                  !radioData[index].subRadioModel[3].isSelected;
-                            });
-                          },
-                          child:
-                              RadioItemShape(radioData[index].subRadioModel[3]),
-                        ),
+                        choiceOption(index, 0),
+                        choiceOption(index, 1),
+                        choiceOption(index, 2),
+                        choiceOption(index, 3),
                       ],
                     ),
                   ),
@@ -185,22 +152,16 @@ class CorrectionScreenState extends State<CorrectionScreen> {
                           child: IconButton(
                             icon: Icon(
                               Icons.check_circle,
-                              color: radioDataCorrection[index]
-                                      .subRadioModel[0]
-                                      .isSelected
+                              color: modelQuestion[index].isCorrect
                                   ? Colors.green
                                   : Colors.grey,
                             ),
                             onPressed: () {
                               setState(() {
-                                radioDataCorrection[index]
-                                    .subRadioModel
-                                    .forEach((subRadioModel) {
-                                  subRadioModel.isSelected =
-                                      !subRadioModel.isSelected;
+                                modelQuestion[index].isCorrect =
+                                    !modelQuestion[index].isCorrect;
 
-                                  calculateTotal();
-                                });
+                                calculateTotal();
                               });
                             },
                           ),
@@ -212,23 +173,17 @@ class CorrectionScreenState extends State<CorrectionScreen> {
                               angle: 3.14 / 4,
                               child: Icon(
                                 Icons.add_circle,
-                                color: radioDataCorrection[index]
-                                        .subRadioModel[1]
-                                        .isSelected
-                                    ? Colors.red
-                                    : Colors.grey,
+                                color: modelQuestion[index].isCorrect
+                                    ? Colors.grey
+                                    : Colors.red,
                               ),
                             ),
                             onPressed: () {
                               setState(() {
-                                radioDataCorrection[index]
-                                    .subRadioModel
-                                    .forEach((subRadioModel) {
-                                  subRadioModel.isSelected =
-                                      !subRadioModel.isSelected;
+                                modelQuestion[index].isCorrect =
+                                    !modelQuestion[index].isCorrect;
 
-                                  calculateTotal();
-                                });
+                                calculateTotal();
                               });
                             },
                           ),
@@ -240,16 +195,31 @@ class CorrectionScreenState extends State<CorrectionScreen> {
               ),
             );
           },
-          itemCount: 40,
         ),
       ),
     );
   }
 
+  Widget choiceOption(int index, int choice) => InkWell(
+        splashColor: Colors.blueAccent,
+        onTap: () {
+          setState(() {
+            if (modelQuestion[index].items.contains(choice))
+              modelQuestion[index].items.remove(choice);
+            else
+              modelQuestion[index].items.add(choice);
+          });
+        },
+        child: RadioItemShape(
+          choice: choice,
+          isCorrect: modelQuestion[index].items.contains(choice),
+        ),
+      );
+
   void calculateTotal() {
     totalMark = 0;
-    radioDataCorrection.forEach((s) {
-      if (s.subRadioModel[0].isSelected) {
+    modelQuestion.forEach((s) {
+      if (s.isCorrect) {
         setState(() {
           totalMark += 1;
         });
@@ -260,12 +230,18 @@ class CorrectionScreenState extends State<CorrectionScreen> {
   void saveDataToDB() async {
     DataBaseHelper dataBaseHelper = DataBaseHelper();
 
+    String answers =
+        jsonEncode(modelQuestion.map((item) => item.toJson()).toList());
     String date =
         DateFormat("EEE d MMM kk:mm").format(DateTime.now()).toString();
-    DBModel dbModel =
-        DBModel("Série ${length + 1}", totalMark.toString(), date);
+    DBModel dbModel = DBModel(
+        widget.id, "Serie ${length + 1}", totalMark.toString(), date, answers);
 
-    int result = await dataBaseHelper.insertTest(dbModel);
+    int result;
+    if (widget.answers.isEmpty)
+      result = await dataBaseHelper.insertTest(dbModel);
+    else
+      result = await dataBaseHelper.updateTest(dbModel);
 
     if (result != 0) {
       print("saved");
@@ -273,5 +249,29 @@ class CorrectionScreenState extends State<CorrectionScreen> {
     } else {
       print("Error during saving");
     }
+  }
+
+  //to allow go back return true, otherwise return false
+  Future<bool> onBackPressed() async {
+    print('on back pressed');
+
+    return await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Confirmation'),
+            content: Text('Do you want to exit without saving?'),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text('Yes'),
+              ),
+              FlatButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text('No'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
   }
 }
