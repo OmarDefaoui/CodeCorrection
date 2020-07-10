@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:code_correction/ui/screens/serie_correction_screen.dart';
 import 'package:code_correction/models/model_question.dart';
 import 'package:code_correction/models/model_serie.dart';
+import 'package:code_correction/utils/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:code_correction/databases/db_series.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -25,7 +26,7 @@ class SeriesListScreenState extends State<SeriesListScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Series"),
+        title: Text(AppLocalizations.of(context).translate('series')),
         /*actions: <Widget>[
           IconButton(
             icon: Icon(Icons.delete_forever),
@@ -68,7 +69,7 @@ class SeriesListScreenState extends State<SeriesListScreen> {
           if (snapshot.data.length == 0) {
             return Center(
               child: Image.asset(
-                'images/empty.png',
+                'assets/images/empty.png',
                 alignment: Alignment.center,
               ),
             );
@@ -99,8 +100,9 @@ class SeriesListScreenState extends State<SeriesListScreen> {
                     deletedItemName = serie.name;
                   });
 
-                  Scaffold.of(context).showSnackBar(
-                      SnackBar(content: Text("$deletedItemName deleted")));
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                      content: Text(
+                          "$deletedItemName ${AppLocalizations.of(context).translate('deleted')}")));
                 },
                 direction: DismissDirection.endToStart,
                 child: ListTile(

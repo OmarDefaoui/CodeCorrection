@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:code_correction/models/model_serie.dart';
 import 'package:code_correction/databases/db_series.dart';
+import 'package:code_correction/utils/app_localizations.dart';
 import 'package:flutter/material.dart';
 import '../../models/model_question.dart';
 import '../widgets/answers_box.dart';
@@ -23,6 +24,7 @@ class SerieCorrectionScreen extends StatefulWidget {
 class SerieCorrectionScreenState extends State<SerieCorrectionScreen> {
   List<ModelQuestion> modelQuestion = new List<ModelQuestion>();
   int totalMark = 40, length;
+  var lang;
 
   SerieCorrectionScreenState(this.length);
 
@@ -54,12 +56,14 @@ class SerieCorrectionScreenState extends State<SerieCorrectionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    lang = AppLocalizations.of(context);
+
     return WillPopScope(
       onWillPop: () => onBackPressed(),
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            "Total: $totalMark",
+            "${lang.translate('total')}: $totalMark",
           ),
           actions: <Widget>[
             IconButton(
@@ -232,10 +236,15 @@ class SerieCorrectionScreenState extends State<SerieCorrectionScreen> {
 
     String answers =
         jsonEncode(modelQuestion.map((item) => item.toJson()).toList());
-    String date =
-        DateFormat("EEE d MMM kk:mm").format(DateTime.now()).toString();
+    String date = DateFormat("EEE d MMM kk:mm", lang.languageCode)
+        .format(DateTime.now())
+        .toString();
     ModelSerie dbModel = ModelSerie(
-        widget.id, "Serie ${length + 1}", totalMark.toString(), date, answers);
+        widget.id,
+        "${lang.translate('serie')} ${length + 1}",
+        totalMark.toString(),
+        date,
+        answers);
 
     int result;
     if (widget.answers.isEmpty)
@@ -258,16 +267,16 @@ class SerieCorrectionScreenState extends State<SerieCorrectionScreen> {
     return await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text('Confirmation'),
-            content: Text('Do you want to exit without saving?'),
+            title: Text(lang.translate('confirmation')),
+            content: Text(lang.translate('confirmation_message')),
             actions: <Widget>[
               FlatButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: Text('Yes'),
+                child: Text(lang.translate('yes')),
               ),
               FlatButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: Text('No'),
+                child: Text(lang.translate('no')),
               ),
             ],
           ),
